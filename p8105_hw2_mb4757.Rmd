@@ -4,7 +4,7 @@ author: Minjie Bao
 output: github_document
 ---
 
-```{r setup}
+```{r setup, message=FALSE}
 library(tidyverse)
 library(readxl)
 ```
@@ -13,7 +13,7 @@ library(readxl)
 
 Read the Mr. Trashwheel dataset.
 
-```{r}
+```{r transhwheel}
 trashwheel_df = 
   read_xlsx(
     "./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
@@ -71,26 +71,35 @@ This dataset contains information from the Mr. Trashwheel trash collector in Bal
 
 
 ## Problem 2
-Read and clean the data, covert entry from char to logical
-```{r}
-nyc_df = read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") 
-nyc_df = janitor::clean_names(nyc_df)
-nyc_df = select (nyc_df, line, station_name, station_latitude, station_longitude, entry, route1:route11, vending, entrance_type, ada)
-nyc_df = mutate(nyc_df, entry = recode(entry, "YES" = "TRUE", "NO" = "FALSE"), entry = as.logical(entry))
+Read and clean the data, covert entry variable from char to logical
+```{r NYC_Transit}
+nyc_df = read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>% 
+  janitor::clean_names() %>% 
+  select (line, station_name, station_latitude, station_longitude, entry, route1:route11, vending, entrance_type, ada) %>% 
+  mutate(entry = recode(entry, "YES" = "TRUE", "NO" = "FALSE"), entry = as.logical(entry))
+
 skimr::skim(nyc_df)
+names(nyc_df)
 ```
 
-This dataset contains information from the NYC Transit data; in particular, it has information related to each entrance and exit for each subway station in NYC. There are 19 variables in this dataset includes line, station name, entry and route served etc. For data cleaning steps, I read the data first and usejanitor to clean the variables' name. Then I change the variable entry from character to logical. Finally, I use skimr to take a brief view of the descriptive statistics of the dataset. The dimention(rows x columns) of the dataset is `r nrow(nyc_df)` * `r ncol(nyc_df)`. The data is tidy since columns are variables, rows are observations and every value has a cell.
+This dataset contains information from the NYC Transit data; in particular, it has information related to each entrance and exit for each subway station in NYC. There are 19 variables in this dataset: `r names(nyc_df)`.
+For data cleaning steps, I clean the variables' name first. Then I select important variables and drop unnecessary variables. After that I convert variable entry from character to logical data type. 
 
-```{r}
-distinct_data1 = distinct(nyc_df, line, station_name, .keep_all = TRUE)
-```
-There are 465 distinct stations here.
+The rows of the dataset is `r nrow(nyc_df)` and the columns of the dataset is `r ncol(nyc_df)`. The dimention is `r nrow(nyc_df)` * `r ncol(nyc_df)`. 
 
-```{r}
-filter(distinct_data1,  ada == "TRUE")
+The data is not super tidy since we need to reformat variables route1 to route11.
+
+```{r distinct stations}
+distinct_data1 = distinct(nyc_df, line, station_name, .keep_all = TRUE) 
+nrow(distinct_data1)
 ```
-There are 84 stations are ADA compliant.
+There are `r nrow(distinct_data1)` distinct stations here.
+
+```{r ADA compliant}
+  filter(distinct_data1,  ada == "TRUE") %>% 
+  nrow()
+```
+There are `r nrow(filter(distinct_data1,  ada == "TRUE"))` stations are ADA compliant.
 
 ```{r}
 filter(nyc_df,  vending == "NO")
@@ -101,7 +110,7 @@ b/a ##The proportion of station entrances / exits without vending allow entrance
 The proportion of station entrances / exits without vending allow entrance is `r b/a`.
 
 convert variable route9-route11 from double to char.
-```{r}
+```{r convert variables}
 nyc_df_char = mutate(nyc_df, route8 = as.character(route8),
                 route9 = as.character(route9),
                 route10 = as.character(route10),
@@ -110,7 +119,7 @@ nyc_df_char = mutate(nyc_df, route8 = as.character(route8),
 ```
 
 reform the dataset.
-```{r}
+```{r nyc_df_tidy}
 nyc_df_tidy =
   nyc_df_char %>% 
   pivot_longer(
@@ -122,34 +131,71 @@ nyc_df_tidy =
 
 ```{r}
 distinct_data2 = distinct(nyc_df_tidy, line, station_name, .keep_all = TRUE)
-filter(distinct_data2,  route_name == "A")
+filter(distinct_data2,  route_name == "A") %>% 
+  nrow()
 ```
-There are 60 distinct station.
+There are `r nrow(filter(distinct_data2,  route_name == "A"))` distinct station.
 
 ```{r}
-filter(distinct_data2,  route_name == "A", ada == "TRUE")
+filter(distinct_data2,  route_name == "A", ada == "TRUE") %>% 
+  nrow()
 ```
-There are 17 ada compliant of the stations serve the A train.
+There are `r nrow(filter(distinct_data2,  route_name == "A", ada == "TRUE"))` ada compliant of the stations serve the A train.
 
 
 ## Problem 3
 read the csv datasets
 ```{r}
-pols_month_df = read_csv("./data/pols-month.csv")
-pols_month_df = separate(pols_month_df, mon, into = c("year", "month", "day"))
-pols_month_df = mutate(pols_month_df, month = month.abb[as.factor(month)])
-
-## mutate(president = case_when(c("gop","dem")))
-select(pols_month_df, -prez_dem, -prez_gop, -day)
-
+pols_month_df = 
+  read_csv("./data/pols-month.csv") %>% 
+  janitor::clean_names() %>% 
+  separate(mon, 
+           into = c("year", "month", "day"),
+           convert = TRUE
+           ) %>% 
+ mutate(
+   month = month.abb[as.factor(month)],
+   president = case_when(
+     prez_gop == 1 ~ 'gop',
+     prez_dem == 1 ~ 'dem'
+   ) 
+   ) %>% 
+  arrange(year, month) %>%
+  select(-prez_dem, -prez_gop, -day)
 ```
 
+clean snap data
 ```{r}
-snap_df = read_csv("./data/snp.csv") 
+snap_df = 
+read_csv("./data/snp.csv") %>% 
+  janitor::clean_names() %>% 
+ separate(date, 
+          into = c("month", "day","year"),
+          sep = "/",
+          convert = TRUE
+          ) %>% 
+ mutate( month = month.abb[as.factor(month)]) %>% 
+  arrange(year, month) %>% 
+  select(year, month, close)
 ```
 
+clean the unemployment data
 ```{r}
-unemplyment_df = read_csv("./data/unemployment.csv") 
+unemployment_df = 
+  read_csv("./data/unemployment.csv") %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(
+    jan:dec,
+    names_to = "month",
+    values_to = "unemployment_rate"
+  ) %>% 
+  mutate( month = month.abb[as.factor(month)])
+```
+
+merge the files
+```{r}
+merge_pols_snap = left_join(pols_month_df, snap_df, by = c("year","month"))
+merge_all =left_join(merge_pols_snap, unemployment_df, by = c("year","month"))
 ```
 
 
