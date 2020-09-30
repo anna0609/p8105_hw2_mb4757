@@ -144,7 +144,7 @@ There are `r nrow(filter(distinct_data2,  route_name == "A", ada == "TRUE"))` ad
 
 
 ## Problem 3
-read the csv datasets
+read the pols_month data
 ```{r}
 pols_month_df = 
   read_csv("./data/pols-month.csv") %>% 
@@ -164,7 +164,7 @@ pols_month_df =
   select(-prez_dem, -prez_gop, -day)
 ```
 
-clean snap data
+clean the snap data
 ```{r}
 snap_df = 
 read_csv("./data/snp.csv") %>% 
@@ -199,3 +199,10 @@ merge_all =left_join(merge_pols_snap, unemployment_df, by = c("year","month"))
 ```
 
 
+The cleaned dataset pols_month_df contains 9 variables: `r names(pols_month_df)`. The rows is `r nrow(pols_month_df)` and the columns is `r ncol(pols_month_df)`. The dimention is `r nrow(pols_month_df)` * `r ncol(pols_month_df)`. The range of years is `r range(pols_month_df$year)`.
+
+The cleaned dataset snap_df contains 3 variables: `r names(snap_df)`. The rows is `r nrow(snap_df)` and the columns is `r ncol(snap_df)`. The dimention is `r nrow(snap_df)` * `r ncol(snap_df)`. The range of years is `r range(snap_df$year)`.
+
+The cleaned dataset unemployment_df contains 3 variables: `r names(unemployment_df)`.The rows is `r nrow(unemployment_df)` and the columns is `r ncol(unemployment_df)`. The dimention is `r nrow(unemployment_df)` * `r ncol(unemployment_df)`. The range of years is `r range(unemployment_df$year)`.
+
+The cleaned dataset unemployment_df contains 3 variables: `r names(merge_all)`.The rows is `r nrow(merge_all)` and the columns is `r ncol(merge_all)`. The dimention is `r nrow(merge_all)` * `r ncol(merge_all)`. The range of years is `r range(merge_all$year)`.
