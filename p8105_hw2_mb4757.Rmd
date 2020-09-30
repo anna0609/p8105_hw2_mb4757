@@ -80,7 +80,62 @@ nyc_df = mutate(nyc_df, entry = recode(entry, "YES" = "TRUE", "NO" = "FALSE"), e
 skimr::skim(nyc_df)
 ```
 
+This dataset contains information from the NYC Transit data; in particular, it has information related to each entrance and exit for each subway station in NYC. There are 19 variables in this dataset includes line, station name, entry and route served etc. For data cleaning steps, I read the data first and usejanitor to clean the variables' name. Then I change the variable entry from character to logical. Finally, I use skimr to take a brief view of the descriptive statistics of the dataset. The dimention(rows x columns) of the dataset is `r nrow(nyc_df)` * `r ncol(nyc_df)`. The data is tidy since columns are variables, rows are observations and every value has a cell.
+
+```{r}
+distinct_data1 = distinct(nyc_df, line, station_name, .keep_all = TRUE)
+```
+There are 465 distinct stations here.
+
+```{r}
+filter(distinct_data1,  ada == "TRUE")
+```
+There are 84 stations are ADA compliant.
+
+```{r}
+filter(nyc_df,  vending == "NO")
+a = nrow(filter(nyc_df,  vending == "NO"))
+b = nrow(nyc_df)
+a/b ##The proportion of station entrances / exits without vending allow entrance
+```
+The proportion of station entrances / exits without vending allow entrance is 0.0979657.
+
+convert variable route9-route11 from double to char.
+```{r}
+nyc_df_char = mutate(nyc_df, route8 = as.character(route8),
+                route9 = as.character(route9),
+                route10 = as.character(route10),
+                route11 = as.character(route11)
+                )
+```
+
+reform the data.
+```{r}
+nyc_df_tidy =
+  nyc_df_char %>% 
+  pivot_longer(
+    route1:route11,
+    names_to = "route_number",
+    values_to = "route_name"
+  )
+```
+
+```{r}
+distinct_data2 = distinct(nyc_df_tidy, line, station_name, .keep_all = TRUE)
+filter(distinct_data2,  route_name == "A")
+```
+There are 60 distinct station.
+
+```{r}
+filter(distinct_data2,  route_name == "A", ada == "TRUE")
+```
+There are 17 ada compliant of the stations serve the A train.
+
+
+## Problem 3
+read the csv datasets
 ```{r}
 
 ```
+
 
