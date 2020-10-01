@@ -207,4 +207,4 @@ The cleaned dataset snap_df contains 3 variables: `r names(snap_df)`. The rows a
 
 The cleaned dataset unemployment_df contains 3 variables: `r names(unemployment_df)`.The rows are `r nrow(unemployment_df)` and the columns are `r ncol(unemployment_df)`. The dimention is `r nrow(unemployment_df)` * `r ncol(unemployment_df)`. The range of years is `r range(unemployment_df$year)`.
 
-The cleaned dataset unemployment_df contains 3 variables: `r names(merge_all)`.The rows are `r nrow(merge_all)` and the columns are `r ncol(merge_all)`. The dimention is `r nrow(merge_all)` * `r ncol(merge_all)`. The range of years is `r range(merge_all$year)`.
+The cleaned dataset merge_all contains 11 variables: `r names(merge_all)`.The rows are `r nrow(merge_all)` and the columns are `r ncol(merge_all)`. The dimention is `r nrow(merge_all)` * `r ncol(merge_all)`. The range of years is `r range(merge_all$year)`.
